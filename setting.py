@@ -31,7 +31,8 @@ DEFAULT_SETTINGS = {
     "tools": ["scissor"],
     "clothes": ["default"],
     "wear": "default",
-    "lockWear": False
+    "lockWear": False,
+    "money": 0
 }
 
 SETTINGS_FILE = "settings.json"
@@ -62,6 +63,8 @@ def update_settings(settings, key, value):
     if key in settings:
         settings[key] = value
         save_settings(settings)
+        print(f"已更新 {key}: {value}")
+        return settings
     elif key in settings.get("keybindings", {}):
         settings["keybindings"][key] = value
         save_settings(settings)

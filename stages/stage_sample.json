@@ -13,5 +13,6 @@
       ["wave2_enemy_name1, wave2_enemy_number1"],
       ["wave2_enemy_name2, wave2_enemy_number2"]
     ]
-  ]
+  ],
+  "reward": "reward"
 }

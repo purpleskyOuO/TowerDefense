@@ -14,16 +14,24 @@ class ChooseStageView:
         self.chooseStage = 0  # 選擇的關卡
         self.stage_confirm = False
         self.page = 1  # 當前的頁數
+        self.openShop = False
+        self.changeWear = False
 
         """選擇關卡按鈕"""
-        setting = load_settings()
-        self.stages = setting["stage"]
+        self.setting = load_settings()
+        self.stages = self.setting["stage"]
         self.btn_stages = []
         for i in range(self.stages):
             self.btn_stages.append(Button(SCREEN_WIDTH / 2 - 200, (i % 5 + 1) * 70, 400, 60, f"第 {i + 1} 關", 30))
 
         self.btn_pageUp = Button(SCREEN_WIDTH / 2 - 200, 430, 100, 60, "上一頁", 30)
         self.btn_pageDown = Button(SCREEN_WIDTH / 2 + 100, 430, 100, 60, "下一頁", 30)
+
+        """更衣按鈕"""
+        self.btn_changeWear = Button(20, 320, 150, 60, "更衣", 30)
+
+        """商店按鈕"""
+        self.btn_shop = Button(20, 400, 150, 60, "工具商店", 30)
 
         """確認按鈕"""
         self.btn_confirm = Button(SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT - 100, 300, 80, "確認", 30)
@@ -63,6 +71,18 @@ class ChooseStageView:
         if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != ((self.stages - 1) // 5) + 1:
             self.page += 1
 
+        """更衣按紐"""
+        self.btn_changeWear.check_hover(mouse_pos)
+
+        if self.btn_changeWear.is_clicked(mouse_pos, mouse_pressed) and not self.setting["lockWear"]:
+            self.changeWear = True
+
+        """商店按鈕"""
+        self.btn_shop.check_hover(mouse_pos)
+
+        if self.btn_shop.is_clicked(mouse_pos, mouse_pressed):
+            self.openShop = True
+
         """確認按鈕"""
         self.btn_confirm.check_hover(mouse_pos)
 
@@ -88,6 +108,12 @@ class ChooseStageView:
         self.btn_pageUp.draw(surface)
         self.btn_pageDown.draw(surface)
 
+        """更衣按鈕"""
+        self.btn_changeWear.draw(surface)
+
+        """商店按鈕"""
+        self.btn_shop.draw(surface)
+
         """確認按鈕"""
         self.btn_confirm.draw(surface)
 
@@ -97,10 +123,12 @@ class ChooseStageView:
     def reset(self):
         self.chooseStage = 0  # 選擇的關卡
         self.stage_confirm = False
+        self.openShop = False
+        self.changeWear = False
 
         # 選擇關卡按鈕
-        setting = load_settings()
-        self.stages = setting["stage"]
+        self.setting = load_settings()
+        self.stages = self.setting["stage"]
         self.btn_stages = []
         for i in range(self.stages):
             self.btn_stages.append(Button(SCREEN_WIDTH / 2 - 200, (i % 5 + 1) * 70, 400, 60, f"第 {i + 1} 關", 30))

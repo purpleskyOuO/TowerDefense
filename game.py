@@ -4,6 +4,8 @@ from setting import *
 
 from startView import StartView
 from chooseStageView import ChooseStageView
+from changeWearView import ChangeWearView
+from shopView import ShopView
 from stageView import StageView
 from victoryView import VictoryView
 from defeatView import DefeatView
@@ -21,6 +23,8 @@ class Game:
         """初始化界面"""
         self.startView = StartView()
         self.chooseStageView = ChooseStageView()
+        self.changeWearView = ChangeWearView()
+        self.shopView = ShopView()
         self.stageView = None
         self.victoryView = None
         self.defeatView = None
@@ -47,6 +51,12 @@ class Game:
             if self.chooseStageView.stage_confirm:
                 self.view = "stage"
                 self.stageView = StageView(self.chooseStageView.chooseStage)
+            elif self.chooseStageView.openShop:
+                self.view = "shop"
+                self.shopView.reset()
+            elif self.chooseStageView.changeWear:
+                self.view = "changeWear"
+                self.changeWearView.reset()
             else:
                 self.chooseStageView.update()
 
@@ -54,18 +64,20 @@ class Game:
         if self.view == "stage":
             if self.stageView.gameStatus == "victory":
                 self.view = "victory"
-                if self.setting["stage"] == self.stageView.stage:
-                    update_settings(self.setting, "stage", self.setting["stage"] + 1)
-                    update_settings(self.setting, "lockWear", False)
-                    self.victoryView.unlockClothes(self.stageView.cloth)
                 self.victoryView = VictoryView()
+                self.setting = update_settings(self.setting, "money", self.setting["money"] + self.stageView.reward)
+                if self.setting["stage"] == self.stageView.stage:
+                    self.setting = update_settings(self.setting, "stage", self.setting["stage"] + 1)
+                    self.setting = update_settings(self.setting, "lockWear", False)
+                    self.victoryView.unlockClothes(self.stageView.cloth)
 
             elif self.stageView.gameStatus == "defeat":
                 self.view = "defeat"
+                self.defeatView = DefeatView()
                 if self.setting["stage"] == self.stageView.stage:
-                    update_settings(self.setting, "wear", self.stageView.end_cloth)
-                    update_settings(self.setting, "lockWear", True)
-                    self.defeatView = DefeatView(self.stageView.end_cloth)
+                    self.setting = update_settings(self.setting, "wear", self.stageView.end_cloth)
+                    self.setting = update_settings(self.setting, "lockWear", True)
+                    self.defeatView.cloth = self.stageView.end_cloth
 
             else:
                 self.stageView.update(events)
@@ -90,6 +102,22 @@ class Game:
             else:
                 self.defeatView.update()
 
+        """shopView"""
+        if self.view == "shop":
+            if self.shopView.back:
+                self.view = "chooseStage"
+                self.chooseStageView.reset()
+            else:
+                self.shopView.update()
+
+        """changeWearView"""
+        if self.view == "changeWear":
+            if self.changeWearView.back:
+                self.view = "chooseStage"
+                self.chooseStageView.reset()
+            else:
+                self.changeWearView.update()
+
     def draw(self, surface):
         """startView"""
         if self.view == "start":
@@ -110,6 +138,14 @@ class Game:
         """defeatView"""
         if self.view == "defeat":
             self.defeatView.draw(surface)
+
+        """shopView"""
+        if self.view == "shop":
+            self.shopView.draw(surface)
+
+        """changeWearView"""
+        if self.view == "changeWear":
+            self.changeWearView.draw(surface)
 
     def game_run(self):
         while self.running:

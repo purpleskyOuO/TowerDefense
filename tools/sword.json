@@ -1,0 +1,9 @@
+{
+  "name": "sword",
+  "cost": 40,
+  "damage": 40,
+  "cooldown": 1500,
+  "radius": 90,
+  "AOE": false,
+  "price": 100
+}

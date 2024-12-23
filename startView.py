@@ -7,10 +7,10 @@ from draw_text import draw_text
 
 class StartView:
     def __init__(self):
-        self.background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.background.fill(WHITE)
+        self.background = pygame.image.load("image/background_start.jpeg")
+        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
-        # 按鈕事件
+        """按鈕事件"""
         self.startGame = False
         self.openSettings = False
         self.quitGame = False

@@ -6,6 +6,7 @@ from setting import *
 from draw_text import draw_text
 from draw_path import draw_path
 
+from button import Button
 from btn_tools import Btn_tools
 from tool import Tool
 from enemy import Enemy
@@ -32,6 +33,7 @@ class StageView:
             self.cloth = self.stages["cloth"]
             self.waves_num = self.stages["waves_num"]
             self.waves = self.stages["waves"]
+            self.reward = self.stages["reward"]
 
             """網格化地圖"""
             self.tiles = [[x, y] for x in range(12) for y in range(12)]
@@ -51,7 +53,26 @@ class StageView:
             self.img_coin = pygame.transform.scale(self.img_coin, (30, 30))
             self.money = 100
             self.tool_group = pygame.sprite.Group()
+            self.page = 1
             self.btn_tool = Btn_tools(self.toolbar_x + 10, self.toolbar_y + 50, "scissor", 30)
+
+            self.setting = load_settings()
+
+            """工具按鈕"""
+            self.tools = self.setting["tools"]
+
+            self.btn_tools = []
+            for i in range(len(self.tools)):
+                with open(f"tools/{self.tools[i]}.json", "r") as file:
+                    tool = json.load(file)
+
+                btn_x = self.toolbar_x + 10 + i % 5 * 100
+                btn_y = self.toolbar_y + 50
+                self.btn_tools.append(Btn_tools(btn_x, btn_y, self.tools[i], tool["cost"]))
+
+            """切換工具頁按鈕"""
+            self.btn_pageUp = Button(self.toolbar_x + 450, self.toolbar_y + 50, 50, 50, "<", 30)
+            self.btn_pageDown = Button(SCREEN_WIDTH + 450, self.toolbar_y + 120, 50, 50, ">", 30)
 
             """工具選擇狀態"""
             self.selectedTool = None
@@ -123,13 +144,28 @@ class StageView:
         self.tool_group.update(self.enemy_group.sprites())
 
         """工具欄更新"""
-        self.btn_tool.check_hover(mouse_pos)
+        for btn_tool in self.btn_tools:
+            # 確認按鈕是否在該頁數
+            if not self.btn_tools.index(btn_tool) // 5 == self.page - 1:
+                continue
 
-        if self.btn_tool.is_clicked(mouse_pos, mouse_pressed, self.money):
-            self.selectedTool = self.btn_tool.tool
-            self.img_selectedTool = pygame.image.load(f"{IMG_TOOLS}/{self.btn_tool.tool}.png").convert_alpha()
-            self.img_selectedTool = pygame.transform.scale(self.img_selectedTool, (50, 50))
-            self.rect_selectedTool = self.img_selectedTool.get_rect()
+            btn_tool.check_hover(mouse_pos)
+
+            if btn_tool.is_clicked(mouse_pos, mouse_pressed, self.money):
+                self.selectedTool = btn_tool.tool
+                self.img_selectedTool = pygame.image.load(f"{IMG_TOOLS}/{btn_tool.tool}.png").convert_alpha()
+                self.img_selectedTool = pygame.transform.scale(self.img_selectedTool, (50, 50))
+                self.rect_selectedTool = self.img_selectedTool.get_rect()
+
+        """切頁按鈕"""
+        self.btn_pageUp.check_hover(mouse_pos)
+        self.btn_pageDown.check_hover(mouse_pos)
+
+        if self.btn_pageUp.is_clicked(mouse_pos, mouse_pressed) and self.page != 1:
+            self.page -= 1
+
+        if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != ((len(self.btn_tools) - 1) // 5) + 1:
+            self.page += 1
 
         """放置工具"""
         if self.selectedTool:
@@ -165,7 +201,17 @@ class StageView:
         surface.blit(self.bg_toolbar, (self.toolbar_x, self.toolbar_y))
         surface.blit(self.img_coin, (self.toolbar_x + 5, self.toolbar_y + 5))
         draw_text(surface, str(self.money), 30, BLACK, self.toolbar_x + 40, self.toolbar_y + 6, side="left")
-        self.btn_tool.draw(surface)
+
+        """工具購買按鈕"""
+        for btn_tool in self.btn_tools:
+            # 確認按鈕是否在該頁數
+            if not self.btn_tools.index(btn_tool) // 5 == self.page - 1:
+                continue
+
+            btn_tool.draw(surface)
+
+        self.btn_pageUp.draw(surface)
+        self.btn_pageDown.draw(surface)
 
         """放置工具"""
         if self.selectedTool and pygame.mouse.get_pressed()[0]:
