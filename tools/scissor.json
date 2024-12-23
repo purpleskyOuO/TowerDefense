@@ -1,0 +1,9 @@
+{
+  "name": "綉花剪刀",
+  "cost": 30,
+  "damage": 30,
+  "cooldown": 1000,
+  "radius": 70,
+  "AOE": false,
+  "price": 0
+}

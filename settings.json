@@ -1,0 +1,11 @@
+{
+    "stage": 1,
+    "tools": [
+        "scissor"
+    ],
+    "clothes": [
+        "default"
+    ],
+    "wear": "default",
+    "lockWear": false
+}

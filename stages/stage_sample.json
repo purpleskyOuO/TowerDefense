@@ -1,0 +1,17 @@
+{
+  "path_texture": "path texture file name",
+  "path_type": ["list of path type"],
+  "path_pos": ["list of path tile position"],
+  "cloth": ["the name of clothes in this stage"],
+  "waves_num": "number of waves(type int)",
+  "waves": [
+    [
+      ["wave1_enemy_name1, wave1_enemy_number1"],
+      ["wave1_enemy_name2, wave1_enemy_number2"]
+    ],
+    [
+      ["wave2_enemy_name1, wave2_enemy_number1"],
+      ["wave2_enemy_name2, wave2_enemy_number2"]
+    ]
+  ]
+}
