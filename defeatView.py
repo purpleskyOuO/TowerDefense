@@ -12,13 +12,25 @@ class DefeatView:
         self.background.fill(WHITE)
         self.background.set_alpha(128)
 
-        self.first_lose = False
+        self.firstLose = False
         self.cloth = ""
 
         self.btn_continue = Button(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 100, 200, 100, "繼續", 50)
         self.continue_clicked = False
 
         self.role = Role(675, 50, 300, 450)
+
+    def lockCloth(self, cloth):
+        self.firstLose = True
+        self.cloth = cloth
+
+        self.role.reset()
+
+    def reset(self):
+        self.role.reset()
+
+        self.continue_clicked = False
+        self.firstLose = False
 
     def update(self):
         """取得滑鼠事件"""
@@ -35,7 +47,7 @@ class DefeatView:
         surface.blit(self.background, (0, 0))
         draw_text(surface, "Defeat!", 60, BLACK, SCREEN_WIDTH/2, 50)
         draw_text(surface, "你沒能保護你的衣服", 40, BLACK, SCREEN_WIDTH / 2, 130)
-        if self.first_lose:
+        if self.firstLose:
             draw_text(surface, f"你已被迫穿上{self.cloth}", 40, BLACK, SCREEN_WIDTH / 2, 200)
             draw_text(surface, f"你得通過此關卡才可脫下此衣服", 30, (142, 142, 142), SCREEN_WIDTH/2, 280)
 

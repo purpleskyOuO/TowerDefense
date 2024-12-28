@@ -26,8 +26,8 @@ class Game:
         self.changeWearView = ChangeWearView()
         self.shopView = ShopView()
         self.stageView = None
-        self.victoryView = None
-        self.defeatView = None
+        self.victoryView = VictoryView()
+        self.defeatView = DefeatView()
 
         """載入玩家設定與資料"""
         self.setting = load_settings()
@@ -57,6 +57,8 @@ class Game:
             elif self.chooseStageView.changeWear:
                 self.view = "changeWear"
                 self.changeWearView.reset()
+            elif self.chooseStageView.quit:
+                self.running = False
             else:
                 self.chooseStageView.update()
 
@@ -64,7 +66,8 @@ class Game:
         if self.view == "stage":
             if self.stageView.gameStatus == "victory":
                 self.view = "victory"
-                self.victoryView = VictoryView()
+                self.victoryView.reset()
+                self.setting = load_settings()
                 self.setting = update_settings(self.setting, "money", self.setting["money"] + self.stageView.reward)
                 if self.setting["stage"] == self.stageView.stage:
                     self.setting = update_settings(self.setting, "stage", self.setting["stage"] + 1)
@@ -73,12 +76,16 @@ class Game:
 
             elif self.stageView.gameStatus == "defeat":
                 self.view = "defeat"
-                self.defeatView = DefeatView()
+                self.defeatView.reset()
+                self.setting = load_settings()
                 if self.setting["stage"] == self.stageView.stage:
                     self.setting = update_settings(self.setting, "wear", self.stageView.end_cloth)
                     self.setting = update_settings(self.setting, "lockWear", True)
-                    self.defeatView.cloth = self.stageView.end_cloth
-
+                    self.defeatView.lockCloth(self.stageView.end_cloth)
+            elif self.stageView.gameStatus == "quit":
+                self.view = "chooseStage"
+                self.stageView = None
+                self.chooseStageView.reset()
             else:
                 self.stageView.update(events)
 
@@ -87,7 +94,7 @@ class Game:
             if self.victoryView.continue_clicked:
                 self.view = "chooseStage"
                 self.stageView = None
-                self.victoryView = None
+                self.victoryView.firstWin = False
                 self.chooseStageView.reset()
             else:
                 self.victoryView.update()
@@ -97,7 +104,7 @@ class Game:
             if self.defeatView.continue_clicked:
                 self.view = "chooseStage"
                 self.stageView = None
-                self.defeatView = None
+                self.defeatView.firstLose = False
                 self.chooseStageView.reset()
             else:
                 self.defeatView.update()

@@ -16,6 +16,7 @@ class ChooseStageView:
         self.page = 1  # 當前的頁數
         self.openShop = False
         self.changeWear = False
+        self.quit = False
 
         """選擇關卡按鈕"""
         self.setting = load_settings()
@@ -32,6 +33,9 @@ class ChooseStageView:
 
         """商店按鈕"""
         self.btn_shop = Button(20, 400, 150, 60, "工具商店", 30)
+
+        """離開遊戲按鈕"""
+        self.btn_quit = Button(20, 480, 150, 60, "離開遊戲", 30)
 
         """確認按鈕"""
         self.btn_confirm = Button(SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT - 100, 300, 80, "確認", 30)
@@ -83,6 +87,12 @@ class ChooseStageView:
         if self.btn_shop.is_clicked(mouse_pos, mouse_pressed):
             self.openShop = True
 
+        """離開遊戲按鈕"""
+        self.btn_quit.check_hover(mouse_pos)
+
+        if self.btn_quit.is_clicked(mouse_pos, mouse_pressed):
+            self.quit = True
+
         """確認按鈕"""
         self.btn_confirm.check_hover(mouse_pos)
 
@@ -113,6 +123,9 @@ class ChooseStageView:
 
         """商店按鈕"""
         self.btn_shop.draw(surface)
+
+        """離開遊戲按鈕"""
+        self.btn_quit.draw(surface)
 
         """確認按鈕"""
         self.btn_confirm.draw(surface)

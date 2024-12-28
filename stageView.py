@@ -21,6 +21,10 @@ class StageView:
             self.background.set_alpha(128)
             self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+            self.bg_pause = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            self.bg_pause.fill(GRAY)
+            self.bg_pause.set_alpha(64)
+
             """載入關卡設定"""
             if os.path.exists(f"stages/stage_{stage}.json"):
                 with open(f"stages/stage_{stage}.json", "r") as file:
@@ -54,9 +58,13 @@ class StageView:
             self.money = 100
             self.tool_group = pygame.sprite.Group()
             self.page = 1
-            self.btn_tool = Btn_tools(self.toolbar_x + 10, self.toolbar_y + 50, "scissor", 30)
 
             self.setting = load_settings()
+
+            """暫停按鈕"""
+            self.btn_gamePause = Button(20, 20, 50, 50, "||", 30)
+            self.btn_continue = Button(SCREEN_WIDTH/2 - 120, SCREEN_HEIGHT / 2 - 60, 100, 60, "繼續", 30)
+            self.btn_back = Button(SCREEN_WIDTH/2 + 20, SCREEN_HEIGHT / 2 - 60, 100, 60, "退出", 30)
 
             """工具按鈕"""
             self.tools = self.setting["tools"]
@@ -71,8 +79,8 @@ class StageView:
                 self.btn_tools.append(Btn_tools(btn_x, btn_y, self.tools[i], tool["cost"]))
 
             """切換工具頁按鈕"""
-            self.btn_pageUp = Button(self.toolbar_x + 450, self.toolbar_y + 50, 50, 50, "<", 30)
-            self.btn_pageDown = Button(SCREEN_WIDTH + 450, self.toolbar_y + 120, 50, 50, ">", 30)
+            self.btn_pageUp = Button(self.toolbar_x + 850, self.toolbar_y + 50, 50, 50, "<", 30)
+            self.btn_pageDown = Button(self.toolbar_x + 850, self.toolbar_y + 120, 50, 50, ">", 30)
 
             """工具選擇狀態"""
             self.selectedTool = None
@@ -134,55 +142,74 @@ class StageView:
         mouse_pos = pygame.mouse.get_pos()
         mouse_pressed = pygame.mouse.get_pressed()
 
-        """敵人更新"""
-        self.enemy_group.update()
-        self.enemy_generator()
-        self.check_enemyDeath()
-        self.check_reachEnd()
+        if self.gameStatus == "fight":
 
-        """工具更新"""
-        self.tool_group.update(self.enemy_group.sprites())
+            """敵人更新"""
+            self.enemy_group.update()
+            self.enemy_generator()
+            self.check_enemyDeath()
+            self.check_reachEnd()
 
-        """工具欄更新"""
-        for btn_tool in self.btn_tools:
-            # 確認按鈕是否在該頁數
-            if not self.btn_tools.index(btn_tool) // 5 == self.page - 1:
-                continue
+            """工具更新"""
+            self.tool_group.update(self.enemy_group.sprites())
 
-            btn_tool.check_hover(mouse_pos)
+            """工具欄更新"""
+            for btn_tool in self.btn_tools:
+                # 確認按鈕是否在該頁數
+                if not self.btn_tools.index(btn_tool) // 5 == self.page - 1:
+                    continue
 
-            if btn_tool.is_clicked(mouse_pos, mouse_pressed, self.money):
-                self.selectedTool = btn_tool.tool
-                self.img_selectedTool = pygame.image.load(f"{IMG_TOOLS}/{btn_tool.tool}.png").convert_alpha()
-                self.img_selectedTool = pygame.transform.scale(self.img_selectedTool, (50, 50))
-                self.rect_selectedTool = self.img_selectedTool.get_rect()
+                btn_tool.check_hover(mouse_pos)
 
-        """切頁按鈕"""
-        self.btn_pageUp.check_hover(mouse_pos)
-        self.btn_pageDown.check_hover(mouse_pos)
+                if btn_tool.is_clicked(mouse_pos, mouse_pressed, self.money):
+                    self.selectedTool = btn_tool.tool
+                    self.img_selectedTool = pygame.image.load(f"{IMG_TOOLS}/{btn_tool.tool}.png").convert_alpha()
+                    self.img_selectedTool = pygame.transform.scale(self.img_selectedTool, (50, 50))
+                    self.rect_selectedTool = self.img_selectedTool.get_rect()
 
-        if self.btn_pageUp.is_clicked(mouse_pos, mouse_pressed) and self.page != 1:
-            self.page -= 1
+            """切頁按鈕"""
+            self.btn_pageUp.check_hover(mouse_pos)
+            self.btn_pageDown.check_hover(mouse_pos)
 
-        if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != ((len(self.btn_tools) - 1) // 5) + 1:
-            self.page += 1
+            if self.btn_pageUp.is_clicked(mouse_pos, mouse_pressed) and self.page != 1:
+                self.page -= 1
 
-        """放置工具"""
-        if self.selectedTool:
-            if not mouse_pressed[0]:
-                for tile_rect in self.tiles_rect:
-                    if tile_rect.collidepoint(mouse_pos) and not self.tiles[self.tiles_rect.index(tile_rect)] in self.path_pos:
-                        newTool = Tool(tile_rect.center, self.selectedTool)
-                        self.tool_group.add(newTool)
-                        self.money -= newTool.cost
+            if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != ((len(self.btn_tools) - 1) // 5) + 1:
+                self.page += 1
 
-                self.selectedTool = None
+            """放置工具"""
+            if self.selectedTool:
+                if not mouse_pressed[0]:
+                    for tile_rect in self.tiles_rect:
+                        if tile_rect.collidepoint(mouse_pos) and not self.tiles[self.tiles_rect.index(tile_rect)] in self.path_pos:
+                            newTool = Tool(tile_rect.center, self.selectedTool)
+                            self.tool_group.add(newTool)
+                            self.money -= newTool.cost
+
+                    self.selectedTool = None
+
+            """暫停按鈕"""
+            self.btn_gamePause.check_hover(mouse_pos)
+
+            if self.btn_gamePause.is_clicked(mouse_pos, mouse_pressed):
+                self.gameStatus = "pause"
+
+        else:
+            self.btn_continue.check_hover(mouse_pos)
+
+            if self.btn_continue.is_clicked(mouse_pos, mouse_pressed):
+                self.gameStatus = "fight"
+
+            self.btn_back.check_hover(mouse_pos)
+
+            if self.btn_back.is_clicked(mouse_pos, mouse_pressed):
+                self.gameStatus = "quit"
 
         """檢查遊戲勝利"""
         if not self.enemy_group.sprites() and not self.waves:
             self.gameStatus = "victory"
 
-    def draw(self, surface):
+    def draw(self, surface: pygame.Surface):
         background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         background.fill(WHITE)
         surface.blit(background, (0, 0))
@@ -221,4 +248,12 @@ class StageView:
 
         """繪製角色"""
         self.role.draw(surface)
+
+        """暫停遊戲"""
+        self.btn_gamePause.draw(surface)
+
+        if self.gameStatus == "pause":
+            surface.blit(self.bg_pause, (0, 0))
+            self.btn_continue.draw(surface)
+            self.btn_back.draw(surface)
 

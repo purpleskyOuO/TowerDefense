@@ -23,13 +23,21 @@ class VictoryView:
 
     def unlockClothes(self, clothes):
         self.firstWin = True
+        self.setting = load_settings()
+        print(str(self.setting))
 
         for cloth in clothes:
             if cloth not in self.setting["clothes"]:
                 self.unlock_cloth.append(cloth)
-                self.setting = load_settings()
                 self.setting["clothes"].append(cloth)
                 self.setting = update_settings(self.setting, "clothes", self.setting["clothes"])
+
+    def reset(self):
+        self.role.reset()
+
+        self.setting = load_settings()
+        self.continue_clicked = False
+        self.unlock_cloth = []
 
     def update(self):
         """取得滑鼠事件"""
