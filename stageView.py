@@ -1,4 +1,5 @@
 import json
+import math
 import pygame
 import os
 
@@ -11,6 +12,24 @@ from btn_tools import Btn_tools
 from tool import Tool
 from enemy import Enemy
 from role import Role
+
+
+def draw_toolProgress(surface, tool):
+    center = tool.rect.center
+    radius = 30
+    thickness = 5
+
+    now = pygame.time.get_ticks()
+    progress_angle = (now - tool.atk_time) / tool.cooldown * 360
+
+    """draw"""
+    pygame.draw.circle(surface, WHITE, center, radius)
+
+    # 繪製進度部分的圓弧
+    start_angle = -90  # 從頂部開始
+    end_angle = start_angle + progress_angle
+    rect = pygame.Rect(center[0] - radius, center[1] - radius, radius * 2, radius * 2)
+    pygame.draw.arc(surface, PROGRESS_COLOR, rect, math.radians(start_angle), math.radians(end_angle), thickness)
 
 
 class StageView:
@@ -41,7 +60,7 @@ class StageView:
 
             """網格化地圖"""
             self.tiles = [[x, y] for x in range(12) for y in range(12)]
-            self.tiles_rect = [pygame.Rect(tile[0]*64, tile[1]*32, 64, 32) for tile in self.tiles]
+            self.tiles_rect = [pygame.Rect(tile[0] * 64, tile[1] * 32, 64, 32) for tile in self.tiles]
 
             """遊戲狀態"""
             self.gameStatus = "fight"
@@ -49,10 +68,10 @@ class StageView:
             self.end_cloth = None
 
             """工具欄"""
-            self.bg_toolbar = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT - 12*32))
+            self.bg_toolbar = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT - 12 * 32))
             self.bg_toolbar.fill((255, 255, 153))
             self.toolbar_x = 0
-            self.toolbar_y = 12*32
+            self.toolbar_y = 12 * 32
             self.img_coin = pygame.image.load("image/coin.png").convert_alpha()
             self.img_coin = pygame.transform.scale(self.img_coin, (30, 30))
             self.money = 100
@@ -63,8 +82,8 @@ class StageView:
 
             """暫停按鈕"""
             self.btn_gamePause = Button(20, 20, 50, 50, "||", 30)
-            self.btn_continue = Button(SCREEN_WIDTH/2 - 120, SCREEN_HEIGHT / 2 - 60, 100, 60, "繼續", 30)
-            self.btn_back = Button(SCREEN_WIDTH/2 + 20, SCREEN_HEIGHT / 2 - 60, 100, 60, "退出", 30)
+            self.btn_continue = Button(SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2 - 60, 100, 60, "繼續", 30)
+            self.btn_back = Button(SCREEN_WIDTH / 2 + 20, SCREEN_HEIGHT / 2 - 60, 100, 60, "退出", 30)
 
             """工具按鈕"""
             self.tools = self.setting["tools"]
@@ -132,7 +151,7 @@ class StageView:
 
     def check_reachEnd(self):
         for enemy in self.enemy_group.sprites():
-            if enemy.rect.left >= 64*12:
+            if enemy.rect.left >= 64 * 12:
                 self.gameStatus = "defeat"
                 self.end_cloth = enemy.name
 
@@ -167,6 +186,11 @@ class StageView:
                     self.img_selectedTool = pygame.transform.scale(self.img_selectedTool, (50, 50))
                     self.rect_selectedTool = self.img_selectedTool.get_rect()
 
+                if btn_tool.tool == self.selectedTool:
+                    btn_tool.is_selected(True)
+                else:
+                    btn_tool.is_selected(False)
+
             """切頁按鈕"""
             self.btn_pageUp.check_hover(mouse_pos)
             self.btn_pageDown.check_hover(mouse_pos)
@@ -174,14 +198,17 @@ class StageView:
             if self.btn_pageUp.is_clicked(mouse_pos, mouse_pressed) and self.page != 1:
                 self.page -= 1
 
-            if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != ((len(self.btn_tools) - 1) // 5) + 1:
+            if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != (
+                    (len(self.btn_tools) - 1) // 5) + 1:
                 self.page += 1
 
             """放置工具"""
             if self.selectedTool:
                 if not mouse_pressed[0]:
                     for tile_rect in self.tiles_rect:
-                        if tile_rect.collidepoint(mouse_pos) and not self.tiles[self.tiles_rect.index(tile_rect)] in self.path_pos:
+                        if tile_rect.collidepoint(mouse_pos) and not \
+                                self.tiles[self.tiles_rect.index(tile_rect)] in self.path_pos and \
+                                tile_rect.center not in [tool.rect.center for tool in self.tool_group]:
                             newTool = Tool(tile_rect.center, self.selectedTool)
                             self.tool_group.add(newTool)
                             self.money -= newTool.cost
@@ -210,11 +237,16 @@ class StageView:
             self.gameStatus = "victory"
 
     def draw(self, surface: pygame.Surface):
+        """背景與標題"""
         background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         background.fill(WHITE)
         surface.blit(background, (0, 0))
         surface.blit(self.background, (0, 0))
         draw_path(surface, self.path_texture, self.path_type, self.path_pos)
+
+        # 繪製工具進度條
+        for tool in self.tool_group:
+            draw_toolProgress(surface, tool)
 
         self.enemy_group.draw(surface)
         self.tool_group.draw(surface)
@@ -256,4 +288,3 @@ class StageView:
             surface.blit(self.bg_pause, (0, 0))
             self.btn_continue.draw(surface)
             self.btn_back.draw(surface)
-

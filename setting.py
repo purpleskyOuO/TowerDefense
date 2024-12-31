@@ -14,6 +14,7 @@ INDIGO = (8, 46, 84)
 PURPLE = (160, 32, 240)
 MAGENTA = (255, 0, 255)
 GRAY = (128, 128, 128)
+PROGRESS_COLOR = (0, 255, 0)
 
 """字型"""
 FONT = "Font/NaikaiFont-Regular-Lite.ttf"
@@ -58,7 +59,8 @@ def save_settings(settings):
     print(f"設定已儲存至 {SETTINGS_FILE}")
 
 
-def update_settings(settings, key, value):
+def update_settings(key, value):
+    settings = load_settings()
     """更新指定設定項目"""
     if key in settings:
         settings[key] = value

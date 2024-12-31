@@ -30,7 +30,7 @@ class VictoryView:
             if cloth not in self.setting["clothes"]:
                 self.unlock_cloth.append(cloth)
                 self.setting["clothes"].append(cloth)
-                self.setting = update_settings(self.setting, "clothes", self.setting["clothes"])
+                self.setting = update_settings("clothes", self.setting["clothes"])
 
     def reset(self):
         self.role.reset()

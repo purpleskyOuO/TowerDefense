@@ -8,12 +8,16 @@ from role import Role
 
 class ChangeWearView:
     def __init__(self):
-        self.background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.background.fill(WHITE)
+        """Background"""
+        self.background = pygame.image.load("image/background_changRoom.jpeg").convert_alpha()
+        self.background.set_alpha(180)
+        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
         self.setting = load_settings()
         self.clothes = self.setting["clothes"]
         self.current_wear = self.setting["wear"]
+
+        self.sound_wear = pygame.mixer.Sound("sound/wear_cloth.mp3")
 
         self.role = Role(SCREEN_WIDTH//2-160, 50, 320, 480)
         self.page = 1
@@ -28,14 +32,15 @@ class ChangeWearView:
         self.btn_save = Button(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT - 80, 100, 60, "保存", 30)
 
         """切頁按鈕"""
-        self.btn_pageUp = Button(SCREEN_WIDTH - 240, 400, 100, 60, "上一頁", 30)
-        self.btn_pageDown = Button(SCREEN_WIDTH - 120, 400, 100, 60, "下一頁", 30)
+        self.btn_pageUp = Button(SCREEN_WIDTH - 230, 450, 100, 60, "上一頁", 30)
+        self.btn_pageDown = Button(SCREEN_WIDTH - 110, 450, 100, 60, "下一頁", 30)
 
         """返回按鈕"""
         self.btn_back = Button(SCREEN_WIDTH - 120, 20, 100, 60, "返回", 30)
 
     def reset(self):
         self.setting = load_settings()
+        self.role.reset()
         self.clothes = self.setting["clothes"]
         self.current_wear = self.setting["wear"]
 
@@ -62,6 +67,7 @@ class ChangeWearView:
 
             if btn.is_clicked(mouse_pos, mouse_pressed):
                 self.current_wear = btn.text
+                self.sound_wear.play()
 
             if self.current_wear == btn.text:
                 btn.is_selected(True)
@@ -94,6 +100,9 @@ class ChangeWearView:
             self.back = True
 
     def draw(self, surface):
+        background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        background.fill(WHITE)
+        surface.blit(background, (0, 0))
         surface.blit(self.background, (0, 0))
 
         self.role.draw(surface)

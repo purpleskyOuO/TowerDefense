@@ -1,0 +1,9 @@
+{
+  "name": "utility_knife",
+  "cost": 20,
+  "damage": 15,
+  "cooldown": 600,
+  "radius": 60,
+  "AOE": false,
+  "price": 150
+}

@@ -1,0 +1,9 @@
+{
+  "name": "chainsaw",
+  "cost": 80,
+  "damage": 10,
+  "cooldown": 100,
+  "radius": 75,
+  "AOE": false,
+  "price": 400
+}

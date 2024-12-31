@@ -16,8 +16,7 @@ class StartView:
         self.quitGame = False
 
         self.btn_startGame = Button(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2+10, 300, 80, "開始遊戲", 30)
-        self.btn_settings = Button(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2+100, 145, 80, "設定", 30)
-        self.btn_quit = Button(SCREEN_WIDTH/2+5, SCREEN_HEIGHT/2+100, 145, 80, "離開遊戲", 30)
+        self.btn_quit = Button(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2+100, 300, 80, "離開遊戲", 30)
 
     def update(self):
 
@@ -27,14 +26,10 @@ class StartView:
 
         # 更新按鈕狀態
         self.btn_startGame.check_hover(mouse_pos)
-        self.btn_settings.check_hover(mouse_pos)
         self.btn_quit.check_hover(mouse_pos)
 
         if self.btn_startGame.is_clicked(mouse_pos, mouse_pressed):
             self.startGame = True
-
-        if self.btn_settings.is_clicked(mouse_pos, mouse_pressed):
-            self.openSettings = True
 
         if self.btn_quit.is_clicked(mouse_pos, mouse_pressed):
             self.quitGame = True
@@ -45,7 +40,6 @@ class StartView:
 
         """按鈕"""
         self.btn_startGame.draw(surface)
-        self.btn_settings.draw(surface)
         self.btn_quit.draw(surface)
 
     def reset(self):

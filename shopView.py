@@ -12,8 +12,10 @@ from btn_shopTool import Btn_shopTools
 
 class ShopView:
     def __init__(self):
-        self.background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.background.fill(WHITE)
+        """Background"""
+        self.background = pygame.image.load("image/background_shop.jpeg").convert_alpha()
+        self.background.set_alpha(180)
+        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
         self.setting = load_settings()
 
@@ -26,7 +28,7 @@ class ShopView:
 
         self.btn_tools = []
         for i in range(len(self.tools)):
-            self.btn_tools.append(Btn_shopTools(100 + (i % 5) * 210, 200, self.tools[i]["name"], self.tools[i]["price"]))
+            self.btn_tools.append(Btn_shopTools(100 + (i % 4) * 210, 200, self.tools[i]["name"], self.tools[i]["price"]))
 
         """當前狀態"""
         self.page = 1
@@ -39,6 +41,7 @@ class ShopView:
 
         """購買按鈕"""
         self.btn_purchase = Button(SCREEN_WIDTH//2-50, SCREEN_HEIGHT-80, 100, 60, "購買", 30)
+        self.sound_purchase = pygame.mixer.Sound("sound/purchase.mp3")
 
         """切頁按鈕"""
         self.btn_pageUp = Button(SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT-80, 100, 60, "上一頁", 30)
@@ -59,7 +62,7 @@ class ShopView:
 
         self.btn_tools = []
         for i in range(len(self.tools)):
-            self.btn_tools.append(Btn_shopTools(((i % 5) * 210) + 10, 200, self.tools[i]["name"], self.tools[i]["price"]))
+            self.btn_tools.append(Btn_shopTools(((i % 4) * 210) + 10, 200, self.tools[i]["name"], self.tools[i]["price"]))
 
         self.chooseTool = None
         self.price = 0
@@ -73,7 +76,7 @@ class ShopView:
         """商品按鈕"""
         for btn in self.btn_tools:
             # 確認按鈕是否在該頁數
-            if not self.btn_tools.index(btn) // 5 == self.page - 1:
+            if not self.btn_tools.index(btn) // 4 == self.page - 1:
                 continue
 
             btn.check_hover(mouse_pos)
@@ -93,10 +96,12 @@ class ShopView:
         if self.btn_purchase.is_clicked(mouse_pos, mouse_pressed):
             if self.setting["money"] >= self.price and self.chooseTool:
                 self.setting["tools"].append(self.chooseTool)
-                self.setting["money"] -= self.price
+                self.setting = update_settings("tools", self.setting["tools"])
 
-                self.setting = update_settings(self.setting, "tools", self.setting["tools"])
-                self.setting = update_settings(self.setting, "money", self.setting["money"])
+                self.setting["money"] -= self.price
+                self.setting = update_settings("money", self.setting["money"])
+
+                self.sound_purchase.play()
 
                 for btn in self.btn_tools:
                     if btn.tool == self.chooseTool:
@@ -112,7 +117,7 @@ class ShopView:
         if self.btn_pageUp.is_clicked(mouse_pos, mouse_pressed) and self.page != 1:
             self.page -= 1
 
-        if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != ((len(self.btn_tools) - 1) // 5) + 1:
+        if self.btn_pageDown.is_clicked(mouse_pos, mouse_pressed) and self.page != ((len(self.btn_tools) - 1) // 4) + 1:
             self.page += 1
 
         """返回按鈕"""
@@ -122,6 +127,9 @@ class ShopView:
             self.back = True
 
     def draw(self, surface):
+        background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        background.fill(WHITE)
+        surface.blit(background, (0, 0))
         surface.blit(self.background, (0, 0))
         surface.blit(self.img_coin, (5, 5))
         draw_text(surface, str(self.setting["money"]), 50, BLACK, 60, 5, side="left")
@@ -129,7 +137,7 @@ class ShopView:
         """商品按鈕"""
         for btn in self.btn_tools:
             # 確認按鈕是否在該頁數
-            if not self.btn_tools.index(btn) // 5 == self.page - 1:
+            if not self.btn_tools.index(btn) // 4 == self.page - 1:
                 continue
 
             btn.draw(surface)

@@ -1,0 +1,9 @@
+{
+  "name": "axe",
+  "cost": 60,
+  "damage": 65,
+  "cooldown": 2300,
+  "radius": 100,
+  "AOE": false,
+  "price": 500
+}

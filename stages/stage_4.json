@@ -1,0 +1,19 @@
+{
+  "path_texture": "path/Path_Dry_22-128x64.png",
+  "path_type": [1, 1, 1, 10, 2, 11, 1, 10, 2, 2, 2, 2],
+  "path_pos": [[0, 8], [1, 7], [2, 6], [3, 5], [4, 6], [5, 7], [6, 6], [7, 5], [8, 6], [9, 7], [10, 8], [11, 9]],
+  "cloth": ["pleated_skirt"],
+  "waves_num": 3,
+  "waves": [
+    [
+      ["pleated_skirt", 4]
+    ],
+    [
+      ["pleated_skirt", 8]
+    ],
+    [
+      ["pleated_skirt", 12]
+    ]
+  ],
+  "reward": 60
+}

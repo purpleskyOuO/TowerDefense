@@ -8,8 +8,10 @@ from draw_text import draw_text
 
 class ChooseStageView:
     def __init__(self):
-        self.background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.background.fill(WHITE)
+        """Background"""
+        self.background = pygame.image.load("image/background_chooseStage.jpeg").convert_alpha()
+        self.background.set_alpha(180)
+        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
         self.chooseStage = 0  # 選擇的關卡
         self.stage_confirm = False
@@ -102,6 +104,9 @@ class ChooseStageView:
 
     def draw(self, surface):
         """背景與標題"""
+        background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        background.fill(WHITE)
+        surface.blit(background, (0, 0))
         surface.blit(self.background, (0, 0))
         draw_text(surface, "選擇關卡", 40, (94, 38, 18), SCREEN_WIDTH / 2, 30)
 

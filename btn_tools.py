@@ -80,3 +80,8 @@ class Btn_tools:
             else:
                 print("金錢不夠")
                 return False
+
+    def is_selected(self, selected: bool):
+        self.selected = selected
+        if self.selected:
+            self.current_color = self.hover_color

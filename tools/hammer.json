@@ -1,0 +1,9 @@
+{
+  "name": "hammer",
+  "cost": 55,
+  "damage": 55,
+  "cooldown": 2400,
+  "radius": 90,
+  "AOE": false,
+  "price": 600
+}
